@@ -79,6 +79,8 @@ Example Playbook
 ----------------
 
     - hosts: zabbix-server
+      gather_facts: yes
+      become: yes
       roles:
       - andrelohmann.sury_php
       - andrelohmann.apache_php
