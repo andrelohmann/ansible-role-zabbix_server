@@ -6,8 +6,9 @@
     enabled: yes
 
 - name: restart apache
-  service:
+  systemd:
     name: apache2
     state: restarted
+    enabled: yes
 
 ...
