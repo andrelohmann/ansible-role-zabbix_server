@@ -13,6 +13,16 @@
   - deb-src
   - deb
 
+- name: Installing zabbix-server-mysql
+  apt:
+    pkg: zabbix-server-mysql
+    state: latest
+    dpkg_options: 'force-confnew,force-confdef'
+    autoclean: yes
+    autoremove: yes
+    update_cache: yes
+    cache_valid_time: 0
+
 - name: Install networking tools
   apt:
     name: "{{ item }}"
@@ -25,16 +35,6 @@
   with_items:
   - nmap
   - iputils-tracepath
-
-- name: Installing zabbix-server-mysql
-  apt:
-    pkg: zabbix-server-mysql
-    state: latest
-    dpkg_options: 'force-confnew,force-confdef'
-    autoclean: yes
-    autoremove: yes
-    update_cache: yes
-    cache_valid_time: 3600
 
 - name: Install Mysql Client package
   apt:
