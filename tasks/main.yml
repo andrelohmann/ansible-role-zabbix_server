@@ -1,0 +1,88 @@
+---
+- name: Install repository key
+  apt_key:
+    id: "{{ sign_keys[zabbix_version][ansible_distribution_release]['sign_key'] }}"
+    url: http://repo.zabbix.com/zabbix-official-repo.key
+  become: yes
+
+- name: Installing repository
+  apt_repository:
+    repo: "{{ item }} http://repo.zabbix.com/zabbix/{{ zabbix_version }}/{{ ansible_distribution.lower() }}/ {{ ansible_distribution_release }} main"
+    state: present
+  with_items:
+  - deb-src
+  - deb
+
+- name: Install networking tools
+  apt:
+    name: "{{ item }}"
+    state: latest
+    dpkg_options: 'force-confnew,force-confdef'
+    autoclean: yes
+    autoremove: yes
+    update_cache: yes
+    cache_valid_time: 3600
+  with_items:
+  - nmap
+  - iputils-tracepath
+
+- name: Installing zabbix-server-mysql
+  apt:
+    pkg: zabbix-server-mysql
+    state: latest
+    dpkg_options: 'force-confnew,force-confdef'
+    autoclean: yes
+    autoremove: yes
+    update_cache: yes
+    cache_valid_time: 3600
+
+- name: Install Mysql Client package
+  apt:
+    name: "{{ item }}"
+    state: latest
+    dpkg_options: 'force-confnew,force-confdef'
+    autoclean: yes
+    autoremove: yes
+    update_cache: yes
+    cache_valid_time: 3600
+  with_items:
+  - mysql-client
+  - python-mysqldb
+
+- name: Creating the mysql database
+  include: mysql.yml
+
+- name: Configure zabbix-server
+  template:
+    src: zabbix_server.conf.j2
+    dest: /etc/zabbix/zabbix_server.conf
+    owner: zabbix
+    group: zabbix
+    mode: 0644
+  notify:
+  - zabbix-server restarted
+
+- name: Create include dir zabbix-server
+  file:
+    path: "{{ zabbix_server_include }}"
+    owner: zabbix
+    group: zabbix
+    state: directory
+    mode: 0755
+
+- name: Create a new sudoers file into place, after passing validation with visudo
+  template:
+    src: 30-zabbix_sudoers.j2
+    dest: /etc/sudoers.d/30-zabbix_sudoers
+    validate: /usr/sbin/visudo -cf %s
+
+- name: Zabbix-server started
+  systemd:
+    name: zabbix-server
+    state: started
+    enabled: yes
+
+- name: Installing the zabbix web ui
+  include: web.yml
+
+...

@@ -1,0 +1,42 @@
+---
+
+- name: Get the file for create.sql
+  shell: ls -1 /usr/share/doc/zabbix-server-mysql/create.sq*
+  changed_when: False
+  register: _ls_output_create
+
+- name: Check if we are done
+  stat:
+    path: /etc/zabbix/create.done
+  register: _done_file
+
+- name: Create database and import file
+  mysql_db:
+    name: "{{ zabbix_server_dbname }}"
+    encoding: "{{ zabbix_server_dbencoding }}"
+    collation: "{{ zabbix_server_dbcollation }}"
+    state: import
+    target: "{{ _ls_output_create.stdout }}"
+  when: not _done_file.stat.exists
+
+- name: Check if we have sql_done files
+  file:
+    path: /etc/zabbix/create.done
+    state: touch
+  when: not _done_file.stat.exists
+
+- name: Create tmp sql file for password update
+  template:
+    src: admin_password.sql.j2
+    dest: /tmp/admin_password.sql
+    mode: 0644
+  register: _admin_password
+
+- name: Set mysql admin password
+  mysql_db:
+    name: "{{ zabbix_server_dbname }}"
+    state: import
+    target: /tmp/admin_password.sql
+  when: _admin_password.changed
+
+...

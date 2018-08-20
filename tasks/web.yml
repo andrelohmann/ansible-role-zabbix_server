@@ -1,0 +1,53 @@
+---
+
+- name: Install zabbix-web
+  apt:
+    name: zabbix-frontend-php
+    state: latest
+    dpkg_options: 'force-confnew,force-confdef'
+    autoclean: yes
+    autoremove: yes
+    update_cache: yes
+    cache_valid_time: 3600
+
+- name: Install apache vhost
+  template:
+    src: apache_vhost.conf.j2
+    dest: /etc/apache2/sites-available/zabbix.conf
+    owner: "{{ apache_user }}"
+    group: "{{ apache_group }}"
+    mode: 0644
+  when: zabbix_vhost
+  notify:
+  - restart apache
+
+- name: Enable apache vhost
+  file:
+    src: /etc/apache2/sites-available/zabbix.conf
+    dest: /etc/apache2/sites-enabled/zabbix.conf
+    owner: "{{ apache_user }}"
+    group: "{{ apache_group }}"
+    state: link
+  when: zabbix_vhost
+  notify:
+  - restart apache
+
+- name: Create zabbix-web directory
+  file:
+    path: /etc/zabbix/web
+    owner: "{{ apache_user }}"
+    group: "{{ apache_group }}"
+    state: directory
+    mode: 0755
+
+- name: Configure zabbix-web
+  template:
+    src: zabbix_web.conf.php.j2
+    dest: /etc/zabbix/web/zabbix.conf.php
+    owner: "{{ apache_user }}"
+    group: "{{ apache_group }}"
+    mode: 0644
+  notify:
+  - restart apache
+
+...

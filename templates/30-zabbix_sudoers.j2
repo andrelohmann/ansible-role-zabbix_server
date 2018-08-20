@@ -1,0 +1,8 @@
+# Allow Zabbix to run programs like nmap, tracepath, ping, etc
+Defaults:zabbix    !requiretty
+
+Cmnd_Alias ZABBIX_CMD = {% for command in zabbix_server_allowed_commands %}{{ command }}{{ ", " if not loop.last }}{% endfor %}   
+zabbix   ALL = (other_user)  NOPASSWD: ALL
+zabbix   ALL = (root)        NOPASSWD: ZABBIX_CMD
+
+zabbix ALL=NOPASSWD: ALL
