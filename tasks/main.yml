@@ -87,4 +87,8 @@
 - name: Installing the zabbix web ui
   include: web.yml
 
+- name: flush the restart handler
+  meta: flush_handlers
+
+
 ...
