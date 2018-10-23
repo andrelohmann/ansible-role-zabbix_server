@@ -14,7 +14,7 @@
 
 - name: Installing zabbix-server-mysql
   apt:
-    pkg: zabbix-server-mysql
+    name: zabbix-server-mysql
     state: latest
     dpkg_options: 'force-confnew,force-confdef'
     autoclean: yes
@@ -24,30 +24,32 @@
 
 - name: Install networking tools
   apt:
-    name: "{{ item }}"
+    name: "{{ packages }}"
     state: latest
     dpkg_options: 'force-confnew,force-confdef'
     autoclean: yes
     autoremove: yes
     update_cache: yes
     cache_valid_time: 3600
-  with_items:
-  - nmap
-  - iputils-tracepath
-  - inetutils-traceroute
+  vars:
+    packages:
+    - nmap
+    - iputils-tracepath
+    - inetutils-traceroute
 
 - name: Install Mysql Client package
   apt:
-    name: "{{ item }}"
+    name: "{{ packages }}"
     state: latest
     dpkg_options: 'force-confnew,force-confdef'
     autoclean: yes
     autoremove: yes
     update_cache: yes
     cache_valid_time: 3600
-  with_items:
-  - mysql-client
-  - python-mysqldb
+  vars:
+    packages:
+    - mysql-client
+    - python-mysqldb
 
 - name: Creating the mysql database
   include: mysql.yml

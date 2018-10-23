@@ -1,7 +1,7 @@
 ---
 
 # Zabbix Configs
-zabbix_version: 3.4
+zabbix_version: 4.0
 
 zabbix_server_admin_password: zabbix
 
@@ -83,6 +83,11 @@ zabbix_server_vmwaretimeout: 10
 # Repo Keys
 sign_keys:
   3.4:
+    bionic:
+      sign_key: A14FE591
+    xenial:
+      sign_key: E709712C
+  4.0:
     bionic:
       sign_key: A14FE591
     xenial:
